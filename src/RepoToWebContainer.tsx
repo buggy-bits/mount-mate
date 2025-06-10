@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Upload, Download, FileText, Folder, Copy, Check } from 'lucide-react';
+import React, { useState } from "react";
+import { Upload, Download, FileText, Folder, Copy, Check } from "lucide-react";
 
 interface FileItem {
   path: string;
   content: string;
   size: number;
-  type: 'file';
+  type: "file";
 }
 
 interface WebContainerFile {
@@ -27,7 +27,7 @@ interface WebContainerStructure {
 const RepoToWebContainer: React.FC = () => {
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [files, setFiles] = useState<FileItem[]>([]);
-  const [webContainerCode, setWebContainerCode] = useState<string>('');
+  const [webContainerCode, setWebContainerCode] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
@@ -41,97 +41,140 @@ const RepoToWebContainer: React.FC = () => {
     }
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>): Promise<void> => {
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>
+  ): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     const items = e.dataTransfer.items;
     const fileList: FileItem[] = [];
-    
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      if (item.kind === 'file') {
+      if (item.kind === "file") {
         const entry = item.webkitGetAsEntry();
         if (entry) {
           await processEntry(entry, fileList);
         }
       }
     }
-    
+
     setFiles(fileList);
     generateWebContainerCode(fileList);
   };
 
   const processEntry = async (
-    entry: FileSystemEntry, 
-    fileList: FileItem[], 
-    path: string = ''
+    entry: FileSystemEntry,
+    fileList: FileItem[],
+    path: string = ""
   ): Promise<void> => {
     const fullPath = path + entry.name;
-    
+
     if (entry.isFile) {
       const fileEntry = entry as FileSystemFileEntry;
       const file = await new Promise<File>((resolve) => {
         fileEntry.file(resolve);
       });
-      
+
       // Skip certain files/directories
       if (shouldSkipFile(fullPath)) {
         return;
       }
-      
+
       const content = await readFileContent(file);
       fileList.push({
         path: fullPath,
         content: content,
         size: file.size,
-        type: 'file'
+        type: "file",
       });
     } else if (entry.isDirectory) {
       // Skip certain directories
       if (shouldSkipDirectory(entry.name)) {
         return;
       }
-      
+
       const dirEntry = entry as FileSystemDirectoryEntry;
       const reader = dirEntry.createReader();
       const entries = await new Promise<FileSystemEntry[]>((resolve) => {
         reader.readEntries(resolve);
       });
-      
+
       for (const childEntry of entries) {
-        await processEntry(childEntry, fileList, fullPath + '/');
+        await processEntry(childEntry, fileList, fullPath + "/");
       }
     }
   };
 
   const shouldSkipFile = (path: string): boolean => {
-    const skipPatterns: RegExp[] = [
-      /node_modules/,
-      /\.git/,
-      /dist/,
-      /build/,
-      /\.DS_Store/,
-      /\.env\.local/,
-      /\.env\.production/,
-      /coverage/,
-      /\.nyc_output/,
-      /\.cache/,
-      /\.vscode/,
-      /\.idea/,
-      /thumbs\.db/i,
-      /package-lock\.json/,
-      /yarn\.lock/,
-      /\.lock$/,
-      /\.log$/,
-    ];
-    
-    return skipPatterns.some(pattern => pattern.test(path));
+    const skipPatterns = [
+  /node_modules/,
+  /\.git/,
+  /dist/,
+  /build/,
+  /\.DS_Store/,
+  /\.env(\..*)?/,
+  /coverage/,
+  /\.nyc_output/,
+  /\.cache/,
+  /\.vscode/,
+  /\.idea/,
+  /thumbs\.db/i,
+  /ehthumbs\.db/i,
+  /desktop\.ini/i,
+  /package-lock\.json/,
+  /yarn\.lock/,
+  /pnpm-lock\.yaml/,
+  /\.lock$/,
+  /\.log$/,
+  /\.eslintcache/,
+  /\.npm/,
+  /\.npmrc/,
+  /\.nvmrc/,
+  /\.babelrc(\.js)?/,
+  /babel\.config\.js/,
+  /\.prettierrc(\..*)?/,
+  /\.prettierignore/,
+  /\.editorconfig/,
+  /\.history/,
+  /\.next/,
+  /\.nuxt/,
+  /\.expo/,
+  /out/,
+  /public\/static/,
+  /\.tmp/,
+  /tmp/,
+  /temp/,
+  /\.jest/,
+  /test-results/,
+  /cypress\/videos/,
+  /cypress\/screenshots/,
+  /\.firebase/,
+  /\.local/,
+  /\.pnp(\.js)?/,
+  /\.tsbuildinfo/,
+  /\.sublime-(workspace|project)$/,
+  /\.Trash-.*/,
+];
+
+
+    return skipPatterns.some((pattern) => pattern.test(path));
   };
 
   const shouldSkipDirectory = (name: string): boolean => {
-    const skipDirs: string[] = ['node_modules', '.git', 'dist', 'build', '.vscode', '.idea', 'coverage', '.nyc_output', '.cache'];
+    const skipDirs: string[] = [
+      "node_modules",
+      ".git",
+      "dist",
+      "build",
+      ".vscode",
+      ".idea",
+      "coverage",
+      ".nyc_output",
+      ".cache",
+    ];
     return skipDirs.includes(name);
   };
 
@@ -139,10 +182,10 @@ const RepoToWebContainer: React.FC = () => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
-        resolve(e.target?.result as string || '');
+        resolve((e.target?.result as string) || "");
       };
       reader.onerror = () => {
-        resolve(''); // Return empty string on error
+        resolve(""); // Return empty string on error
       };
       reader.readAsText(file);
     });
@@ -150,63 +193,74 @@ const RepoToWebContainer: React.FC = () => {
 
   const generateWebContainerCode = (fileList: FileItem[]): void => {
     setIsProcessing(true);
-    
+
     // Build the nested structure
     const structure: WebContainerStructure = {};
-    
-    fileList.forEach(file => {
-      const parts = file.path.split('/');
+
+    fileList.forEach((file) => {
+      const parts = file.path.split("/");
       let current: any = structure;
-      
+
       // Navigate through the path, creating directories as needed
       for (let i = 0; i < parts.length - 1; i++) {
         const part = parts[i];
         if (!current[part]) {
           current[part] = {
-            directory: {}
+            directory: {},
           };
         }
         // Move into the directory's contents
         current = current[part].directory;
       }
-      
+
       // Add the file at the final location
       const fileName = parts[parts.length - 1];
       current[fileName] = {
         file: {
-          contents: file.content
-        }
+          contents: file.content,
+        },
       };
     });
-    
-    // Generate the JavaScript code
-    const code = `const files = ${JSON.stringify(structure, null, 2)};
+    console.log(files);
+    console.log(fileList);
+    console.log();
 
-// Mount to WebContainer
+   
+
+    // Generate the JavaScript code
+    const code = `const files = ${JSON.stringify(
+      structure[Object.keys(structure)[0]].directory,
+      null,
+      2
+    )};
+
+// Mount to webcontainer 
 await webcontainerInstance.mount(files);`;
-    
+
     setWebContainerCode(code);
     setIsProcessing(false);
   };
 
-  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+  const handleFileInput = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> => {
     const selectedFiles = Array.from(e.target.files || []);
     const fileList: FileItem[] = [];
-    
+
     for (const file of selectedFiles) {
       if (shouldSkipFile((file as any).webkitRelativePath || file.name)) {
         continue;
       }
-      
+
       const content = await readFileContent(file);
       fileList.push({
         path: (file as any).webkitRelativePath || file.name,
         content: content,
         size: file.size,
-        type: 'file'
+        type: "file",
       });
     }
-    console.log('Selected files:', fileList);
+    console.log("Selected files:", fileList);
     setFiles(fileList);
     generateWebContainerCode(fileList);
   };
@@ -217,16 +271,16 @@ await webcontainerInstance.mount(files);`;
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
   const downloadCode = (): void => {
-    const blob = new Blob([webContainerCode], { type: 'text/javascript' });
+    const blob = new Blob([webContainerCode], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'webcontainer-files.js';
+    a.download = "webcontainer-files.js";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -241,7 +295,8 @@ await webcontainerInstance.mount(files);`;
             Repository to WebContainer Converter
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Drop your repository folder or select files to automatically generate WebContainer-compatible file structure
+            Drop your repository folder or select files to automatically
+            generate WebContainer-compatible file structure
           </p>
         </div>
 
@@ -252,12 +307,12 @@ await webcontainerInstance.mount(files);`;
               <Upload className="text-blue-600" />
               Upload Repository
             </h2>
-            
+
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
+                dragActive
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:border-gray-400"
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -275,7 +330,7 @@ await webcontainerInstance.mount(files);`;
                 <input
                   type="file"
                   multiple
-                  {...({ webkitdirectory: '' } as any)}
+                  {...({ webkitdirectory: "" } as any)}
                   className="hidden"
                   onChange={handleFileInput}
                 />
@@ -284,10 +339,15 @@ await webcontainerInstance.mount(files);`;
 
             {files.length > 0 && (
               <div className="mt-6">
-                <h3 className="font-semibold mb-3">Processed Files ({files.length})</h3>
+                <h3 className="font-semibold mb-3">
+                  Processed Files ({files.length})
+                </h3>
                 <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3">
                   {files.slice(0, 10).map((file, index) => (
-                    <div key={index} className="flex items-center gap-2 py-1 text-sm">
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 py-1 text-sm"
+                    >
                       <FileText className="h-4 w-4 text-gray-500" />
                       <span className="truncate">{file.path}</span>
                       <span className="text-gray-400 ml-auto">
@@ -324,8 +384,12 @@ await webcontainerInstance.mount(files);`;
                     onClick={copyToClipboard}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copied ? 'Copied!' : 'Copy Code'}
+                    {copied ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    {copied ? "Copied!" : "Copy Code"}
                   </button>
                   <button
                     onClick={downloadCode}
@@ -335,7 +399,7 @@ await webcontainerInstance.mount(files);`;
                     Download
                   </button>
                 </div>
-                
+
                 <div className="bg-gray-900 rounded-lg p-4 overflow-auto max-h-96">
                   <pre className="text-green-400 text-sm whitespace-pre-wrap">
                     {webContainerCode}
@@ -362,21 +426,27 @@ await webcontainerInstance.mount(files);`;
                 <span className="text-blue-600 font-bold">1</span>
               </div>
               <h4 className="font-semibold mb-2">Upload Repository</h4>
-              <p className="text-gray-600">Drag and drop your repo folder or select files</p>
+              <p className="text-gray-600">
+                Drag and drop your repo folder or select files
+              </p>
             </div>
             <div className="text-center">
               <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <span className="text-green-600 font-bold">2</span>
               </div>
               <h4 className="font-semibold mb-2">Auto-Generate Code</h4>
-              <p className="text-gray-600">Code is automatically generated with proper structure</p>
+              <p className="text-gray-600">
+                Code is automatically generated with proper structure
+              </p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <span className="text-purple-600 font-bold">3</span>
               </div>
               <h4 className="font-semibold mb-2">Copy & Use</h4>
-              <p className="text-gray-600">Copy the code and use it with WebContainer</p>
+              <p className="text-gray-600">
+                Copy the code and use it with WebContainer
+              </p>
             </div>
           </div>
         </div>
