@@ -1,54 +1,96 @@
-# React + TypeScript + Vite
+# Mount Mate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A developer tool that simplifies creating WebContainer mount objects for StackBlitz's WebContainer API.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Mount Mate automates the creation of file structure objects required by StackBlitz's WebContainer `.mount()` method. Upload your project folder and get a properly formatted mount object without manually constructing nested JSON structures.
 
-## Expanding the ESLint configuration
+## The Problem
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+WebContainers require a specific file structure format:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
+```javascript
+const files = {
+  'package.json': {
+    file: {
+      contents: '{"name": "project", ...}'
+    }
   },
-})
+  'src': {
+    directory: {
+      'index.js': {
+        file: {
+          contents: 'console.log("Hello World");'
+        }
+      }
+    }
+  }
+};
+
+await webcontainerInstance.mount(files);
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Creating this structure manually for complex projects is tedious and error-prone.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## The Solution
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+Mount Mate streamlines this by:
+
+- **Folder Upload**: Drag-and-drop your project folder
+- **Automatic Analysis**: Recursively scans all files and directories
+- **Structure Generation**: Creates the WebContainer-compatible mount object
+- **Export**: Copy or Download structured object
+
+## Features
+
+- Clean interface built with React and Tailwind CSS
+- Ignores build files and packages
+- Well and proper structured format
+- Error handling for unsupported file types
+- Full TypeScript support with proper type definitions
+
+## Tech Stack
+
+- **React 18** with TypeScript
+- **Vite** for fast development and builds
+- **Tailwind CSS** for styling
+- **File System APIs** for file processing
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/buggy-bits/mount-mate.git
+
+# Install dependencies
+cd mount-mate && npm install
+
+# Start development server
+npm run dev
 ```
+
+Open `http://localhost:5173` and start uploading your project folders.
+
+## Contributing
+
+Contributions are welcome. Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/feature-name`)
+3. Follow existing TypeScript and React patterns
+4. Submit a pull request with clear description
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [StackBlitz](https://stackblitz.com/) for WebContainers
+- [Vite](https://vitejs.dev/) for build tooling
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+
+---
+
+**Mount Mate** - Simplifying WebContainer integration.
