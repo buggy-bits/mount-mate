@@ -129,34 +129,35 @@ const RepoToWebContainer: React.FC = () => {
       /pnpm-lock\.yaml/,
       /\.lock$/,
       /\.log$/,
-      /\.eslintcache/,
-      /\.npm/,
-      /\.npmrc/,
-      /\.nvmrc/,
-      /\.babelrc(\.js)?/,
-      /babel\.config\.js/,
-      /\.prettierrc(\..*)?/,
-      /\.prettierignore/,
       /\.editorconfig/,
-      /\.history/,
-      /\.next/,
-      /\.nuxt/,
-      /\.expo/,
-      /out/,
-      /public\/static/,
-      /\.tmp/,
-      /tmp/,
-      /temp/,
-      /\.jest/,
-      /test-results/,
-      /cypress\/videos/,
-      /cypress\/screenshots/,
-      /\.firebase/,
-      /\.local/,
-      /\.pnp(\.js)?/,
-      /\.tsbuildinfo/,
-      /\.sublime-(workspace|project)$/,
-      /\.Trash-.*/,
+
+      // /\.eslintcache/,
+      // /\.npm/,
+      // /\.npmrc/,
+      // /\.nvmrc/,
+      // /\.babelrc(\.js)?/,
+      // /babel\.config\.js/,
+      // /\.prettierrc(\..*)?/,
+      // /\.prettierignore/,
+      // /\.history/,
+      // /\.next/,
+      // /\.nuxt/,
+      // /\.expo/,
+      // /out/,
+      // /public\/static/,
+      // /\.tmp/,
+      // /tmp/,
+      // /temp/,
+      // /\.jest/,
+      // /test-results/,
+      // /cypress\/videos/,
+      // /cypress\/screenshots/,
+      // /\.firebase/,
+      // /\.local/,
+      // /\.pnp(\.js)?/,
+      // /\.tsbuildinfo/,
+      // /\.sublime-(workspace|project)$/,
+      // /\.Trash-.*/,
     ];
 
     return skipPatterns.some((pattern) => pattern.test(path));
@@ -221,12 +222,22 @@ const RepoToWebContainer: React.FC = () => {
       };
     });
 
-    // Generate the JavaScript code
-    const code = `const files = ${JSON.stringify(
-      Object.values(Object.values(structure)[0])[0],
-      null,
-      2
-    )};
+const firstKey = Object.keys(structure)[0];
+let JSONstructrue: any = undefined;
+if (
+  firstKey &&
+  structure[firstKey] &&
+  "directory" in structure[firstKey]
+) {
+  const dir = structure[firstKey] as WebContainerDirectory;
+  const secondKey = Object.keys(dir.directory)[0];
+  if (secondKey) {
+    JSONstructrue = dir.directory;
+  }
+}
+
+// const JSONstructrue = structure[Object.keys(structure)[0]][Object.keys(structure[Object.keys(structure)[0]])[0]]
+    const code = `const files = ${JSON.stringify(JSONstructrue, null, 2 )};
 
 // Mount to webcontainer 
 await webcontainerInstance.mount(files);`;
