@@ -1,22 +1,28 @@
-# 📦 Mount Mate
+<div align="center">
+  <a href="https://github.com/buggy-bits/mount-mate">
+    <picture>
+        <source media="(prefers-color-scheme: dark )" srcset="assets/mount-mate.png" />
+        <source media="(prefers-color-scheme: light)" srcset="assets/mount-mate-dark.png" />
+        <img src="assets/mount-mate.png" alt="logo" width="200" height="200">
+    </picture>
+  </a>
+</div>
 
+<h3 align="center">Mount Mate</h3>
+<p align="center">A developer tool that simplifies creating WebContainer mount objects for StackBlitz's WebContainer API.</p>
+
+<div align="center">
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
 
-
----
-
-A developer tool that simplifies creating WebContainer mount objects for StackBlitz's WebContainer API.
-
+</div>
 
 WebContainers require a specific file structure format that's tedious and error-prone to construct manually for complex projects. 
 
 **Mount Mate** solves this by providing a clean interface that recursively analyzes your project folder and generates the properly formatted mount object. Stop wasting time on nested JSON structures and focus on what matters - building your application.
-
 
 
 ## Screenshots
@@ -111,5 +117,6 @@ This project doesn't require any environment variables. It's designed to run loc
 MIT License
 
 © 2025 Gadangi Sainag ☺️
-
+<p align="center">
 If you find this tool helpful, please consider giving a ⭐️ on GitHub.
+</p>
